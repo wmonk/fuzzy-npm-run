@@ -12,13 +12,14 @@ const Fuse = require('fuse.js');
 
 const [term, ...args]  = process.argv.slice(2);
 const getScripts = dir => require(join(dir, 'package.json')).scripts;
-const makeFullCmd = cmd => cmd.split(' ').concat(args.length ? ['--', ...args].join(' ') : []);
+const removeEnvVars = bit => bit.includes('=') && !bit.match(/[a-z]/g)
+const makeFullCmd = cmd => cmd.split(' ').concat(args.length ? ['--', ...args].join(' ') : []).filter(e => !removeEnvVars(e));
 
 const showErrorScript = (msg = 'Something went wrong') => {
     console.log(chalk.bold.red(msg));
     console.log();
     console.log(chalk.dim('Possible scripts are: '));
-    keys.forEach(({ key, cmd }) => console.log(`${chalk.bold.white(key)}\n  ${chalk.dim(cmd)}`));
+    keys.forEach(({ key, cmd }) => console.log(`${chalk.bold.white(key)}\n  ${chalk.dim(cmd.join(' '))}`));
     process.exit(1);
 }
 
@@ -35,14 +36,14 @@ if (!term || (term === '')) {
 
 if (HARD_CODED[term]) {
     const script = scripts[HARD_CODED[term]];
-    return run(makeFullCmd(script));
+    return run(makeFullCmd(script)).catch(e => showErrorScript(e.message));
 }
 
 const list = new Fuse(keys, { tokenize: true, shouldSort: true, keys: ['key'] });
 const matches = list.search(term);
 
 if (matches.length === 0) {
-    return showErrorScript('No matching script found:');
+    return showErrorScript(`No matching script found for: ${term}`);
 }
 
 if (matches.length === 1) {
