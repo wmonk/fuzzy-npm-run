@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @flow
 
 const HARD_CODED = {
     s: 'start',
@@ -11,6 +12,7 @@ const { join } = require('path');
 const Fuse = require('fuse.js');
 
 const [term, ...args]  = process.argv.slice(2);
+// $FlowFixMe: surpress require not accepting a variable
 const getScripts = dir => require(join(dir, 'package.json')).scripts;
 const removeEnvVars = bit => bit.includes('=') && !bit.match(/[a-z]/g)
 
@@ -29,19 +31,20 @@ const keys = Object.keys(scripts)
     }], []);
 
 if (!term || (term === '')) {
-    return showErrorScript('No serch term provided');
+    showErrorScript('No serch term provided');
+    process.exit(1);
 }
 
 if (HARD_CODED[term] && scripts[HARD_CODED[term]]) {
     const script = scripts[HARD_CODED[term]];
-    return run(script).catch(e => showErrorScript(e.message));
+    run(script).catch(e => showErrorScript(e.message));
 }
 
 const list = new Fuse(keys, { tokenize: true, shouldSort: true, keys: ['key'] });
 const matches = list.search(term);
 
 if (matches.length === 0) {
-    return showErrorScript(`No matching script found for: ${term}`);
+    showErrorScript(`No matching script found for: ${term}`);
 }
 
 if (matches.length === 1) {
@@ -60,20 +63,21 @@ if (matches.length > 1) {
         output: process.stdout
     });
 
-    rl.question(`Which command do you want to run?\n${opts}\n`, (answer) => {
+    rl.question(`Which command do you want to run?\n${opts}\n`, answer => {
         rl.close();
         if (Number(answer) === matches.length + 1) {
-            return Promise.all(matches.map(match =>
+            Promise.all(matches.map(match =>
                             run(match.cmd)
                         )).then(() => console.log(chalk.green.bold('Finished')))
                 .catch(err => showErrorScript(err.message));
+            return;
         }
 
         if (isNaN(Number(answer)) || Number(answer) > matches.length) {
             return showErrorScript('Not a valid option');
         }
 
-        run(matches[Number(answer - 1)].cmd)
+        run(matches[Number(answer) - 1].cmd)
             .then(() => console.log(chalk.green.bold('Finished')))
             .catch(err => showErrorScript(err.message));
     });

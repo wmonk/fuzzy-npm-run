@@ -1,3 +1,4 @@
+// @flow
 const utils = require('./utils');
 const proc = require('child_process')
 const chalk = require('chalk');
@@ -23,14 +24,13 @@ const exec = command => {
     })
 };
 
-function runner (command) {
+function runner (command: string) {
     // find out how to run the command(s)
     const runType = utils.runType(command);
 
     if (runType === utils.constants.NORMAL) {
         return exec(command);
     }
-
 
     if (runType === utils.constants.SERIES) {
         return bprom.mapSeries(utils.splitCmds(command), exec);
@@ -39,6 +39,8 @@ function runner (command) {
     if (runType === utils.constants.CONCURRENT) {
         return bprom.map(utils.splitCmds(command), cmd => exec(cmd));
     }
+
+    return exec(command);
 }
 
 module.exports = runner;
