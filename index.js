@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
+const HARD_CODED = {
+    s: 'start',
+    t: 'test'
+};
 const chalk = require('chalk');
 const readline = require('readline');
 const run = require('./run');
 const { join } = require('path');
 const Fuse = require('fuse.js');
 
-const execc = (cmd, cwd) => new Promise((res, rej) => {
-    const proc = exec(cmd, { cwd }, err => err ? rej(err) : res());
-    proc.on('stdout', console.log.bind(console));
-    proc.on('stderr', console.error.bind(console));
-});
+const [term, ...args]  = process.argv.slice(2);
 const getScripts = dir => require(join(dir, 'package.json')).scripts;
-const makeFullCmd = (base, args = []) => [base, args.length ? ['--', ...args] : []].join(' ');
+const makeFullCmd = cmd => cmd.split(' ').concat(args.length ? ['--', ...args].join(' ') : []);
 
 const showErrorScript = (msg = 'Something went wrong') => {
     console.log(chalk.bold.red(msg));
@@ -22,16 +22,20 @@ const showErrorScript = (msg = 'Something went wrong') => {
     process.exit(1);
 }
 
-const [term, ...args]  = process.argv.slice(2);
 const scripts = getScripts(process.cwd());
 const keys = Object.keys(scripts)
     .reduce((arr, key) => [...arr, {
         key,
-        cmd: scripts[key].split(' ').concat(args.length ? ['--', ...args].join(' ') : [])
+        cmd: makeFullCmd(scripts[key])
     }], []);
 
 if (!term || (term === '')) {
     return showErrorScript('No serch term provided');
+}
+
+if (HARD_CODED[term]) {
+    const script = scripts[HARD_CODED[term]];
+    return run(makeFullCmd(script));
 }
 
 const list = new Fuse(keys, { tokenize: true, shouldSort: true, keys: ['key'] });

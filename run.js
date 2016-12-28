@@ -1,27 +1,13 @@
-const spawn = require('cross-spawn')
+const { exec } = require('child_process')
 const chalk = require('chalk');
 
 function runner (app) {
   return new Promise(function (resolve, reject) {
     console.log(chalk.dim(`Running ${app.join(' ')}`));
-    var npm = spawn(app[0], app.slice(1), { stdio: 'inherit' })
-    var testErrors = ''
+    const npm = exec(app.join(' '), { stdio: 'inherit' }, err => err ? reject(err) : resolve())
 
-    npm.on('error', function (err) {
-      console.error(err)
-      testErrors += err.toString()
-    })
-
-    npm.on('exit', function (code) {
-      if (code) {
-        reject({
-          code: code,
-          errors: testErrors
-        })
-        return
-      }
-      resolve()
-    })
+    npm.stdout.on('data', console.log.bind(console));
+    npm.stderr.on('data', console.error.bind(console));
   })
 }
 
