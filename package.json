@@ -1,6 +1,6 @@
 {
   "name": "fuzzy-npm-run",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Fuzzy search scripts to be run by npm",
   "repository": "git@github.com:wmonk/fuzzy-npm-run.git",
   "main": "index.js",
