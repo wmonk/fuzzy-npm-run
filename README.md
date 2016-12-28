@@ -4,7 +4,7 @@
 
 [![NPM](https://nodei.co/npm/fuzzy-npm-run.png)](https://nodei.co/npm/fuzzy-npm-run/)
 
-`fuzzy-npm-run` will allow you to pass a fuzzy search term that will decide which `npm run-script` to run. This is especially useful for projects which have many `npm scripts`, and can often take the format `build:production`. 
+`fuzzy-npm-run` will allow you to pass a fuzzy search term that will decide which `npm run-script` to run. This is especially useful for projects which have many `npm scripts`, and can often take the format `build:production`, but with `fuzzy-npm-run` you can just run `nr b:p` and it will pick up this as the script you were wanting to run.
 
 ## Installation
 ```bash
