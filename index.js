@@ -32,7 +32,7 @@ if (!term || (term === '')) {
     return showErrorScript('No serch term provided');
 }
 
-if (HARD_CODED[term]) {
+if (HARD_CODED[term] && scripts[HARD_CODED[term]]) {
     const script = scripts[HARD_CODED[term]];
     return run(script).catch(e => showErrorScript(e.message));
 }

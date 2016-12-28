@@ -5,7 +5,7 @@
   "repository": "git@github.com:wmonk/fuzzy-npm-run.git",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "mocha"
   },
   "bin": {
     "nr": "./index.js"

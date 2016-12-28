@@ -33,16 +33,11 @@ function runner (command) {
 
 
     if (runType === utils.constants.SERIES) {
-        console.log(utils.splitCmds(command).map(exec));
-        return bprom.mapSeries(utils.splitCmds(command), exec)
-            .then(console.log)
-            .catch(console.log)
+        return bprom.mapSeries(utils.splitCmds(command), exec);
     }
 
     if (runType === utils.constants.CONCURRENT) {
-        return bprom.map(utils.splitCmds(command), cmd => exec(cmd))
-            .then(console.log)
-            .catch(console.log)
+        return bprom.map(utils.splitCmds(command), cmd => exec(cmd));
     }
 }
 
