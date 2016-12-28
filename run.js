@@ -1,14 +1,49 @@
-const { spawn } = require('child_process')
+const utils = require('./utils');
+const proc = require('child_process')
 const chalk = require('chalk');
+const bprom = require('bluebird');
 
-function runner (app) {
-  return new Promise(function (resolve, reject) {
-    console.log(chalk.dim(`Running ${app.join(' ')}`));
-    const npm = spawn(app[0], app.slice(1), { stdio: 'inherit' }, err => err ? reject(err) : resolve())
+const exec = command => {
+    const cmd = utils.removeEnvVars(command).split(' ');
+    return new Promise(function (resolve, reject) {
+        console.log(chalk.dim(`Running ${cmd.join(' ')}`));
+        const npm = proc.spawn(
+                cmd[0],
+                cmd.slice(1),
+                {
+                    stdio: 'inherit',
+                    cwd: process.cwd(),
+                    env: Object.assign(process.env, utils.getEnvVars(command))
+                },
+                err => err ? reject(err) : resolve()
+                );
 
-    npm.on('stdout', console.log.bind(console));
-    npm.on('stderr', console.error.bind(console));
-  })
+        npm.on('stdout', console.log.bind(console));
+        npm.on('stderr', console.error.bind(console));
+    })
+};
+
+function runner (command) {
+    // find out how to run the command(s)
+    const runType = utils.runType(command);
+
+    if (runType === utils.constants.NORMAL) {
+        return exec(command);
+    }
+
+
+    if (runType === utils.constants.SERIES) {
+        console.log(utils.splitCmds(command).map(exec));
+        return bprom.mapSeries(utils.splitCmds(command), exec)
+            .then(console.log)
+            .catch(console.log)
+    }
+
+    if (runType === utils.constants.CONCURRENT) {
+        return bprom.map(utils.splitCmds(command), cmd => exec(cmd))
+            .then(console.log)
+            .catch(console.log)
+    }
 }
 
 module.exports = runner;
