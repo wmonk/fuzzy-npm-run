@@ -13,21 +13,19 @@ const Fuse = require('fuse.js');
 const [term, ...args]  = process.argv.slice(2);
 const getScripts = dir => require(join(dir, 'package.json')).scripts;
 const removeEnvVars = bit => bit.includes('=') && !bit.match(/[a-z]/g)
-const makeFullCmd = cmd => cmd.split(' ').concat(args.length ? ['--', ...args].join(' ') : []).filter(e => !removeEnvVars(e));
 
+const scripts = getScripts(process.cwd());
 const showErrorScript = (msg = 'Something went wrong') => {
     console.log(chalk.bold.red(msg));
     console.log();
     console.log(chalk.dim('Possible scripts are: '));
-    keys.forEach(({ key, cmd }) => console.log(`${chalk.bold.white(key)}\n  ${chalk.dim(cmd.join(' '))}`));
+    keys.forEach(({ key }) => console.log(`${chalk.bold.white(key)}\n  ${chalk.dim(scripts[key])}`));
     process.exit(1);
 }
 
-const scripts = getScripts(process.cwd());
 const keys = Object.keys(scripts)
     .reduce((arr, key) => [...arr, {
         key,
-        cmd: makeFullCmd(scripts[key])
     }], []);
 
 if (!term || (term === '')) {
@@ -36,7 +34,7 @@ if (!term || (term === '')) {
 
 if (HARD_CODED[term]) {
     const script = scripts[HARD_CODED[term]];
-    return run(makeFullCmd(script)).catch(e => showErrorScript(e.message));
+    return run(script).catch(e => showErrorScript(e.message));
 }
 
 const list = new Fuse(keys, { tokenize: true, shouldSort: true, keys: ['key'] });
@@ -48,7 +46,7 @@ if (matches.length === 0) {
 
 if (matches.length === 1) {
     console.log(chalk.green(`Found cmd:`), chalk.green.bold(matches[0].key));
-    run(matches[0].cmd)
+    run(scripts[matches[0].key])
         .then(() => console.log(chalk.green.bold('Finished')))
         .catch(err => showErrorScript(err.message));
 }
