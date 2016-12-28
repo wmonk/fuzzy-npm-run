@@ -1,5 +1,8 @@
 # fuzzy-npm-run
+
 > Run npm scripts quickly and fuzzily 🏃
+
+[![NPM][fuzzy-npm-run-icon] ][fuzzy-npm-run-url]
 
 `fuzzy-npm-run` will allow you to pass a fuzzy search term that will decide which `npm run-script` to run. This is especially useful for projects which have many `npm scripts`, and can often take the format `build:production`. 
 
