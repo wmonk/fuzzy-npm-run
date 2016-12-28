@@ -6,6 +6,9 @@
   "scripts": {
     "test": "npm test"
   },
+  "bin": {
+    "nr": "./index.js"
+  },
   "keywords": [
     "npm",
     "fuzzy",
