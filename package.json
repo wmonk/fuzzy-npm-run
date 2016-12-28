@@ -1,6 +1,6 @@
 {
   "name": "fuzzy-npm-run",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fuzzy search scripts to be run by npm",
   "main": "index.js",
   "scripts": {
