@@ -37,7 +37,7 @@ if (!term || (term === '')) {
 
 if (HARD_CODED[term] && scripts[HARD_CODED[term]]) {
     const script = scripts[HARD_CODED[term]];
-    run(script).catch(e => showErrorScript(e.message));
+    return run(script).catch(e => showErrorScript(e.message));
 }
 
 const list = new Fuse(keys, { tokenize: true, shouldSort: true, keys: ['key'] });
@@ -49,7 +49,7 @@ if (matches.length === 0) {
 
 if (matches.length === 1) {
     console.log(chalk.green(`Found cmd:`), chalk.green.bold(matches[0].key));
-    run(scripts[matches[0].key])
+    return run(scripts[matches[0].key])
         .then(() => console.log(chalk.green.bold('Finished')))
         .catch(err => showErrorScript(err.message));
 }
@@ -77,7 +77,7 @@ if (matches.length > 1) {
             return showErrorScript('Not a valid option');
         }
 
-        run(matches[Number(answer) - 1].cmd)
+        return run(matches[Number(answer) - 1].cmd)
             .then(() => console.log(chalk.green.bold('Finished')))
             .catch(err => showErrorScript(err.message));
     });

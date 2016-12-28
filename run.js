@@ -24,7 +24,7 @@ const exec = command => {
     })
 };
 
-function runner (command: string) {
+function runner (command) {
     // find out how to run the command(s)
     const runType = utils.runType(command);
 
