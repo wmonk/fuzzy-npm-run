@@ -7,7 +7,7 @@ const bprom = require('bluebird');
 const exec = command => {
     const cmd = utils.removeEnvVars(command).split(' ');
     return new Promise(function (resolve, reject) {
-        console.log(chalk.dim(`Running ${cmd.join(' ')}`));
+        console.log(chalk.dim(`Running "${cmd.join(' ')}"`));
         const npm = proc.spawn(
                 cmd[0],
                 cmd.slice(1),
@@ -16,11 +16,14 @@ const exec = command => {
                     cwd: process.cwd(),
                     env: Object.assign(process.env, utils.getEnvVars(command))
                 },
-                err => err ? reject(err) : resolve()
-                );
+                err => {
+                    console.log(err);
+                    err ? reject(err) : resolve('doneee')
+                });
 
         npm.on('stdout', console.log.bind(console));
         npm.on('stderr', console.error.bind(console));
+        npm.on('close', code => code == 0 ? resolve() : reject(new Error(`${command} exited with code: ${code}`)));
     })
 };
 
